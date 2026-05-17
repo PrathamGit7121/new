@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Reminder For You ✨</title>
+    <style>
+        /* Import a cute, soft font */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 50%, #e8dbfc 100%);
+            font-family: 'Quicksand', sans-serif;
+            color: #6c5ce7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            border: 4px solid #fff;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: #ff7675;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #74b9ff;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        /* Puzzle Styling */
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 20px auto;
+            background: #dfe6e9;
+            padding: 8px;
+            border-radius: 20px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .tile {
+            background-size: 300px 300px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: rgba(255,255,255,0.8);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tile:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .tile.selected {
+            outline: 4px solid #ff7675;
+            transform: scale(0.95);
+        }
+
+        /* Hidden Pop-up / Reveal Elements */
+        .hidden-message {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #ffb6c1;
+        }
+
+        .pop-up-note {
+            background: #fff0f5;
+            border-left: 5px solid #ff7675;
+            padding: 15px;
+            border-radius: 12px;
+            font-style: italic;
+            color: #d63031;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(255, 118, 117, 0.1);
+            font-size: 1.1rem;
+        }
+
+        .final-heart {
+            font-size: 3rem;
+            color: #ff7675;
+            animation: heartbeat 1.2s infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            20% { transform: scale(1.1); }
+            40% { transform: scale(1); }
+            60% { transform: scale(1.15); }
+            80%, 100% { transform: scale(1); }
+        }
+
+        .support-box {
+            background: linear-gradient(135deg, #a29bfe 0%, #74b9ff 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Hey beautiful soul... ✨</h1>
+        <p id="instruction">Things might feel a bit jumbled right now. Try clicking two pieces to swap them and put the picture back together.</p>
+
+        <!-- The Puzzle Board -->
+        <div class="puzzle-container" id="puzzle"></div>
+
+        <!-- This section is revealed only when the puzzle is solved -->
+        <div class="hidden-message" id="secretContent">
+            
+            <div class="pop-up-note">
+                💝 <strong>Look at that...</strong> Just like this puzzle, life can sometimes feel messy, broken, or gray. But this is proof that you have the power to arrange the pieces, find the light, and make your life beautiful again. Beautiful things take a little time to piece together.
+            </div>
+
+            <div class="final-heart">💖</div>
+
+            <div class="support-box">
+                <strong>I want you to know something important:</strong><br>
+                I am always right here for you. You do not have to carry all this heavy weight by yourself, and you never have to feel alone. Whenever it gets dark, I will help you look for the stars. We will get through this, step by step, together. 🌸
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Links to placeholder images
+        // The "ugly/scrambled" look is simulated by randomized tile positions initially
+        // Once solved, it cleanly reveals a beautiful aesthetic image
+        const beautifulImg = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=300&auto=format&fit=crop";
+
+        // The correct order of coordinates for a 3x3 grid
+        const correctOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        // A pre-scrambled state that is guaranteed to be solvable but looks messy
+        let currentOrder = [3, 0, 5, 1, 7, 2, 8, 4, 6]; 
+        
+        const puzzleGrid = document.getElementById('puzzle');
+        let selectedTile = null;
+
+        // Render the puzzle pieces
+        function renderPuzzle() {
+            puzzleGrid.innerHTML = '';
+            currentOrder.forEach((pos, index) => {
+                const tile = document.createElement('div');
+                tile.classList.add('tile');
+                tile.dataset.index = index;
+                
+                // Calculate background position based on the ORIGINAL piece position
+                const row = Math.floor(pos / 3);
+                const col = pos % 3;
+                tile.style.backgroundImage = `url(${beautifulImg})`;
+                tile.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+                
+                // If not solved, apply a slight vintage/gray tint to make it look "ugly/sad" initially
+                if (!isSolved()) {
+                    tile.style.filter = "contrast(120%) brightness(80%) sepia(50%)";
+                    // Add subtle numbers so she knows how to solve it easily
+                    tile.innerText = pos + 1;
+                } else {
+                    tile.style.filter = "none";
+                    tile.innerText = "";
+                    tile.style.cursor = "default";
+                }
+
+                tile.addEventListener('click', handleTileClick);
+                puzzleGrid.appendChild(tile);
+            });
+        }
+
+        // Handle clicking and swapping pieces
+        function handleTileClick(e) {
+            if (isSolved()) return; // Lock puzzle if already won
+
+            const clickedTile = e.currentTarget;
+            
+            if (selectedTile === null) {
+                selectedTile = clickedTile;
+                selectedTile.classList.add('selected');
+            } else {
+                const idx1 = parseInt(selectedTile.dataset.index);
+                const idx2 = parseInt(clickedTile.dataset.index);
+
+                // Swap the pieces in our tracking array
+                let temp = currentOrder[idx1];
+                currentOrder[idx1] = currentOrder[idx2];
+                currentOrder[idx2] = temp;
+
+                selectedTile.classList.remove('selected');
+                selectedTile = null;
+                
+                renderPuzzle();
+
+                // Check if this action solved it
+                if (isSolved()) {
+                    revealSecretMessage();
+                }
+            }
+        }
+
+        // Check if current layout matches correct layout
+        function isSolved() {
+            return currentOrder.every((val, i) => val === correctOrder[i]);
+        }
+
+        // Beautiful fade-in reveal animation
+        function revealSecretMessage() {
+            document.getElementById('instruction').style.display = 'none';
+            const secretContent = document.getElementById('secretContent');
+            secretContent.style.display = 'block';
+            setTimeout(() => {
+                secretContent.style.opacity = '1';
+            }, 100);
+        }
+
+        // Initialize the game
+        renderPuzzle();
+    </script>
+</body>
+</html>
